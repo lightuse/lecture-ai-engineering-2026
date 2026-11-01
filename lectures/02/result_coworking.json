@@ -1,0 +1,89 @@
+{
+  "topic": "架空のコワーキングスペースの利用案内",
+  "faq": {
+    "hours": "営業時間は毎日 9:00〜21:00 です。",
+    "price": "ドロップインの利用料金は 1 日 1800 円（税込）です。",
+    "reservation": "会議室の予約は会員サイトから行います。",
+    "cancellation": "会議室の予約キャンセルは利用開始の 24 時間前まで無料です。",
+    "wifi": "Wi-Fi のネットワーク名は cowork-guest です。接続パスワードは受付で案内します。"
+  },
+  "training": {
+    "seconds": 206.5,
+    "steps": 40,
+    "last_logged_loss": 0.01714169532060623
+  },
+  "config": {
+    "base_model": "Qwen/Qwen3.5-0.8B",
+    "revision": "2fc06364715b967f1860aea9cf38778875588b17",
+    "seed": 42,
+    "num_train_epochs": 20,
+    "warmup_steps": 6,
+    "lr": 0.0002,
+    "lora_r": 16,
+    "lora_alpha": 32,
+    "max_seq_len": 512,
+    "max_new_tokens": 96,
+    "gen": {
+      "do_sample": false
+    }
+  },
+  "versions": {
+    "transformers": "5.18.0",
+    "peft": "0.21.1",
+    "trl": "1.14.2",
+    "torch": "2.11.0+cu130"
+  },
+  "method": "LoRA（量子化なし）",
+  "before": {
+    "label": "before",
+    "n": 21,
+    "format_rate": 0.047619047619047616,
+    "content_rate": 0.0,
+    "both_rate": 0.0,
+    "seconds": 30.8
+  },
+  "after": {
+    "label": "after",
+    "n": 21,
+    "format_rate": 1.0,
+    "content_rate": 0.7619047619047619,
+    "both_rate": 0.7619047619047619,
+    "seconds": 40.0
+  },
+  "regressed": [],
+  "knowledge": [
+    {
+      "質問": "運営会社の名前は何ですか",
+      "FAQ にある": false,
+      "学習前の分類": "format_error",
+      "学習前の出力": "{\"answer\": \"運営会社は不明です\"}",
+      "学習後の分類": "needs_review",
+      "学習後の出力": "{\"answer\": \"この FAQ には記載がありません。運営会社は運営サイトから確認が必要です。\", \"needs_review\": true}"
+    },
+    {
+      "質問": "最寄り駅はどこですか",
+      "FAQ にある": false,
+      "学習前の分類": "format_error",
+      "学習前の出力": "{\"answer\": \"確認が必要\"}",
+      "学習後の分類": "needs_review",
+      "学習後の出力": "{\"answer\": \"この FAQ には記載がありません。運営に確認が必要です。\", \"needs_review\": true}"
+    },
+    {
+      "質問": "会議室の最大収容人数は何人ですか",
+      "FAQ にある": false,
+      "学習前の分類": "format_error",
+      "学習前の出力": "{\"answer\": \"会議室の最大収容人数は 100 人です。\"}",
+      "学習後の分類": "format_error",
+      "学習後の出力": "{\"answer\": 1800, \"needs_review\": false}"
+    },
+    {
+      "質問": "営業時間を教えてください",
+      "FAQ にある": true,
+      "学習前の分類": "format_error",
+      "学習前の出力": "{\"answer\": \"9:00〜21:00\"}",
+      "学習後の分類": "asserted",
+      "学習後の出力": "{\"answer\": \"営業時間は毎日 9:00〜21:00 です。\", \"needs_review\": false}"
+    }
+  ],
+  "executed_training_myself": true
+}

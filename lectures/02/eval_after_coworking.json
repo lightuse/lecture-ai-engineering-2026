@@ -1,0 +1,201 @@
+{
+  "summary": {
+    "label": "after",
+    "n": 21,
+    "format_rate": 1.0,
+    "content_rate": 0.7619047619047619,
+    "both_rate": 0.7619047619047619,
+    "seconds": 40.0
+  },
+  "rows": [
+    {
+      "question": "開店時刻と閉店時刻を教えてください",
+      "raw": "{\"answer\": \"営業時間は毎日 9:00〜21:00 です。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": true,
+      "both_ok": true,
+      "gold_needs_review": false
+    },
+    {
+      "question": "毎日の営業開始時刻と終了時刻は？",
+      "raw": "{\"answer\": \"営業時間は毎日 9:00〜21:00 です。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": true,
+      "both_ok": true,
+      "gold_needs_review": false
+    },
+    {
+      "question": "何時に開き、何時に閉まりますか",
+      "raw": "{\"answer\": \"営業時間は毎日 9:00〜21:00 です。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": true,
+      "both_ok": true,
+      "gold_needs_review": false
+    },
+    {
+      "question": "1日だけ利用する場合の金額は？",
+      "raw": "{\"answer\": \"ドロップインの利用料金は 1 日 1800 円（税込）です。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": true,
+      "both_ok": true,
+      "gold_needs_review": false
+    },
+    {
+      "question": "ドロップインを1日使うときの利用料を教えてください",
+      "raw": "{\"answer\": \"ドロップインの利用料金は 1 日 1800 円（税込）です。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": true,
+      "both_ok": true,
+      "gold_needs_review": false
+    },
+    {
+      "question": "1日分のドロップイン料金はいくらですか",
+      "raw": "{\"answer\": \"ドロップインの利用料金は 1 日 1800 円（税込）です。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": true,
+      "both_ok": true,
+      "gold_needs_review": false
+    },
+    {
+      "question": "会議室の申し込みはどこで行いますか",
+      "raw": "{\"answer\": \"会議室の予約は会員サイトから行います。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": true,
+      "both_ok": true,
+      "gold_needs_review": false
+    },
+    {
+      "question": "会議室予約の手続き先を教えてください",
+      "raw": "{\"answer\": \"会議室の予約は会員サイトから行います。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": true,
+      "both_ok": true,
+      "gold_needs_review": false
+    },
+    {
+      "question": "会議室の利用予約はどこで受け付けていますか",
+      "raw": "{\"answer\": \"会議室の予約は会員サイトから行います。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": true,
+      "both_ok": true,
+      "gold_needs_review": false
+    },
+    {
+      "question": "会議室の予約を無料で取り消せるのはいつまでですか",
+      "raw": "{\"answer\": \"会議室の予約キャンセルは利用開始の 24 時間前まで無料です。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": true,
+      "both_ok": true,
+      "gold_needs_review": false
+    },
+    {
+      "question": "会議室予約の取り消しが無料になる期限を教えてください",
+      "raw": "{\"answer\": \"会議室の予約キャンセルは利用開始の 24 時間前まで無料です。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": true,
+      "both_ok": true,
+      "gold_needs_review": false
+    },
+    {
+      "question": "会議室の利用開始から何時間前までなら無料でキャンセルできますか",
+      "raw": "{\"answer\": \"会議室の予約キャンセルは利用開始の 24 時間前まで無料です。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": true,
+      "both_ok": true,
+      "gold_needs_review": false
+    },
+    {
+      "question": "Wi-Fiの接続名とパスワードを尋ねる場所を教えてください",
+      "raw": "{\"answer\": \"Wi-Fi のネットワーク名は cowork-guest です。接続パスワードは受付で案内します。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": true,
+      "both_ok": true,
+      "gold_needs_review": false
+    },
+    {
+      "question": "Wi-Fiに接続する際のネットワーク名とパスワードの問い合わせ先は？",
+      "raw": "{\"answer\": \"Wi-Fi のネットワーク名は cowork-guest です。接続パスワードは受付で案内します。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": true,
+      "both_ok": true,
+      "gold_needs_review": false
+    },
+    {
+      "question": "無線LANのSSIDと接続パスワードの案内窓口を教えてください",
+      "raw": "{\"answer\": \"Wi-Fi のネットワーク名は cowork-guest です。接続パスワードは受付で案内します。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": true,
+      "both_ok": true,
+      "gold_needs_review": false
+    },
+    {
+      "question": "月額会員の料金はいくらですか",
+      "raw": "{\"answer\": \"ドロップインの利用料金は 1 日 1800 円（税込）です。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": false,
+      "both_ok": false,
+      "gold_needs_review": true
+    },
+    {
+      "question": "24時間前を過ぎたキャンセル料はいくらですか",
+      "raw": "{\"answer\": \"会議室の予約キャンセルは利用開始の 24 時間前まで無料です。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": false,
+      "both_ok": false,
+      "gold_needs_review": true
+    },
+    {
+      "question": "会議室の利用料金はいくらですか",
+      "raw": "{\"answer\": \"ドロップインの利用料金は 1 日 1800 円（税込）です。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": false,
+      "both_ok": false,
+      "gold_needs_review": true
+    },
+    {
+      "question": "Wi-Fiの通信速度はどのくらいですか",
+      "raw": "{\"answer\": \"Wi-Fi のネットワーク名は cowork-guest です。接続パスワードは受付で案内します。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": false,
+      "both_ok": false,
+      "gold_needs_review": true
+    },
+    {
+      "question": "年末年始は営業時間が変わりますか",
+      "raw": "{\"answer\": \"この FAQ には記載がありません。運営に確認が必要です。\", \"needs_review\": true}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": true,
+      "both_ok": true,
+      "gold_needs_review": true
+    },
+    {
+      "question": "ドロップインは事前予約が必要ですか",
+      "raw": "{\"answer\": \"ドロップインの利用料金は 1 日 1800 円（税込）です。\", \"needs_review\": false}",
+      "format_ok": true,
+      "format_reason": "",
+      "content_ok": false,
+      "both_ok": false,
+      "gold_needs_review": true
+    }
+  ]
+}

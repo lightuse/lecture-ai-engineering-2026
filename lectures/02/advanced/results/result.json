@@ -1,0 +1,191 @@
+{
+  "topic": "講座用語集のSFTと検索の比較",
+  "config": {
+    "base_model": "Qwen/Qwen3.5-0.8B",
+    "revision": "2fc06364715b967f1860aea9cf38778875588b17",
+    "seed": 42,
+    "num_train_epochs": 3,
+    "warmup_steps": 6,
+    "lr": 0.0002,
+    "lora_r": 16,
+    "lora_alpha": 32,
+    "max_seq_len": 512,
+    "max_new_tokens": 256,
+    "gen": {
+      "do_sample": false
+    }
+  },
+  "versions": {
+    "transformers": "5.18.0",
+    "peft": "0.21.1",
+    "trl": "1.14.2",
+    "torch": "2.11.0+cu130"
+  },
+  "method": "LoRA（量子化なし・文章回答）",
+  "executed_training_myself": true,
+  "training": {
+    "n": 116,
+    "seconds": 106.6,
+    "steps": 45,
+    "last_logged_loss": 1.2932968139648438
+  },
+  "before": {
+    "label": "before",
+    "n": 18,
+    "auto_pass_rate": 0.2777777777777778,
+    "seconds": 223.9,
+    "by_category": {
+      "用語名": {
+        "n": 6,
+        "auto_pass_rate": 0.0
+      },
+      "言い換え・別名": {
+        "n": 6,
+        "auto_pass_rate": 0.3333333333333333
+      },
+      "用語名なし": {
+        "n": 3,
+        "auto_pass_rate": 1.0
+      },
+      "用語集にない語": {
+        "n": 3,
+        "auto_pass_rate": 0.0
+      }
+    }
+  },
+  "after": {
+    "label": "after",
+    "n": 18,
+    "auto_pass_rate": 0.05555555555555555,
+    "seconds": 74.8,
+    "by_category": {
+      "用語名": {
+        "n": 6,
+        "auto_pass_rate": 0.0
+      },
+      "言い換え・別名": {
+        "n": 6,
+        "auto_pass_rate": 0.16666666666666666
+      },
+      "用語名なし": {
+        "n": 3,
+        "auto_pass_rate": 0.0
+      },
+      "用語集にない語": {
+        "n": 3,
+        "auto_pass_rate": 0.0
+      }
+    }
+  },
+  "search": {
+    "label": "search",
+    "n": 18,
+    "auto_pass_rate": 0.8333333333333334,
+    "seconds": 0.0,
+    "by_category": {
+      "用語名": {
+        "n": 6,
+        "auto_pass_rate": 1.0
+      },
+      "言い換え・別名": {
+        "n": 6,
+        "auto_pass_rate": 1.0
+      },
+      "用語名なし": {
+        "n": 3,
+        "auto_pass_rate": 0.0
+      },
+      "用語集にない語": {
+        "n": 3,
+        "auto_pass_rate": 1.0
+      }
+    }
+  },
+  "regressed": [
+    "幻覚と呼ばれる現象はLLMでは何を指しますか",
+    "Quantized LoRAはメモリをどう節約しますか",
+    "言語モデルが文章を細かな断片に分けて処理するとき、その一片を何と呼びますか",
+    "言語モデルが一度に処理できる入出力の長さにはどのような上限がありますか",
+    "言語モデルが存在しない情報をもっともらしく生成する現象を説明してください"
+  ],
+  "retrieval_matches": [
+    {
+      "question": "用語集の「トークン」の意味を教えてください。",
+      "retrieved_term_id": "token"
+    },
+    {
+      "question": "tokenという概念を初学者向けに説明してもらえますか",
+      "retrieved_term_id": "token"
+    },
+    {
+      "question": "用語集の「コンテキストウィンドウ」の意味を教えてください。",
+      "retrieved_term_id": "context-window"
+    },
+    {
+      "question": "コンテキスト長は何を制限するものですか",
+      "retrieved_term_id": "context-window"
+    },
+    {
+      "question": "用語集の「ハルシネーション」の意味を教えてください。",
+      "retrieved_term_id": "hallucination"
+    },
+    {
+      "question": "幻覚と呼ばれる現象はLLMでは何を指しますか",
+      "retrieved_term_id": "hallucination"
+    },
+    {
+      "question": "用語集の「ファインチューニング」の意味を教えてください。",
+      "retrieved_term_id": "fine-tuning"
+    },
+    {
+      "question": "fine-tuningとはどのような学習ですか",
+      "retrieved_term_id": "fine-tuning"
+    },
+    {
+      "question": "用語集の「LoRA」の意味を教えてください。",
+      "retrieved_term_id": "lora"
+    },
+    {
+      "question": "Low-Rank Adaptationの仕組みを説明してください",
+      "retrieved_term_id": "lora"
+    },
+    {
+      "question": "用語集の「QLoRA」の意味を教えてください。",
+      "retrieved_term_id": "qlora"
+    },
+    {
+      "question": "Quantized LoRAはメモリをどう節約しますか",
+      "retrieved_term_id": "qlora"
+    },
+    {
+      "question": "言語モデルが文章を細かな断片に分けて処理するとき、その一片を何と呼びますか",
+      "retrieved_term_id": null
+    },
+    {
+      "question": "言語モデルが一度に処理できる入出力の長さにはどのような上限がありますか",
+      "retrieved_term_id": null
+    },
+    {
+      "question": "言語モデルが存在しない情報をもっともらしく生成する現象を説明してください",
+      "retrieved_term_id": null
+    },
+    {
+      "question": "フェデレーテッドラーニングの意味を教えてください",
+      "retrieved_term_id": null
+    },
+    {
+      "question": "ベイズ最適化とはどのような方法ですか",
+      "retrieved_term_id": null
+    },
+    {
+      "question": "星雲圧縮学習（架空語）とは何ですか",
+      "retrieved_term_id": null
+    }
+  ],
+  "input_sha256": {
+    "glossary_sft.jsonl": "af6ac820e0331d8d9af376e3b4cccff1b31f2f0f8bb462839752e3282bbd1081",
+    "glossary_eval.json": "1a34e079a78b90171ec3de11edab9ef4a0a79df5f408c398e60d20d800db7cf3",
+    "glossary.json": "287604abe17a3ae6db8796c40ea21706d5c01961f34c4f72fb31f02a4193ed0e"
+  },
+  "metric_note": "自動採点は必須語句または確認表現の一致。意味の正確さは手動点検が必要。"
+}

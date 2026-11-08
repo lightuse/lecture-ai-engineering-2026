@@ -1,0 +1,20 @@
+                 pydantic-ai v2.57.0 • Python 3.15.2
+      / \
+     /   \       agent: target • model: google:gemini-3.5-flash-lite • tools: 2 • capabilities: 0
+   /___.___\
+  /    |    \    observability: off — see every model and tool call live, with cost
+/      |      \    set it up free with Logfire and a GitHub login: https://pydantic.dev/ai-setup.md
+`---.._|_..---'    or use any OpenTelemetry backend: https://pydantic.dev/docs/ai/logfire/#otel
+
+                 goes away once observability is on — or PYDANTIC_AI_NO_BANNER=1
+[model] gemini-3.5-flash-lite
+「lecNN-start タグ」とは、AIE2026の講座リポジトリにおいて、各回の演習開始時点のコードに付けられているGitタグのことです（例: `lec03-start`）。
+
+前の回の内容が終わっていなくても、このタグから新しくブランチを作成することで、その回の演習をスムーズに始められるようになっています。
+
+（関連回: 第1回）
+
+--- trace ---
+[tool call]   search_glossary({'query': 'lecNN-start タグ'})
+[tool return] search_glossary -> [{"term": "lecNN-start タグ", "lecture": 1, "definition": "AIE2026の講座repoで、各回の演習開始時点のコードに付けているGitタグ（例：lec03-start）。前の回が終わっ…
+[usage] RunUsage(cost=Decimal('0.0004955'), details={'text_prompt_tokens': 735}, input_text_tokens=735, input_tokens=735, output_tokens=110, requests=2, tool_calls=1)

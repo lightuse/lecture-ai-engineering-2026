@@ -16,7 +16,9 @@ import inspect
 import json
 from pathlib import Path
 
-from pydantic_ai import Agent
+from collections.abc import Callable
+
+from pydantic_ai import Agent, DeferredToolRequests, DeferredToolResults, ToolDenied
 from pydantic_ai.exceptions import ModelHTTPError
 from fastmcp import Client
 from pydantic_ai.mcp import MCPToolset, StdioTransport
@@ -35,12 +37,16 @@ INSTRUCTIONS = """\
 - 用語集に見つからないことは、推測で断定せず「用語集にはない」と伝える。
 - 回答の最後に、関係する回（第N回）を示す。
 - 宿題の答えそのものは書かず、考え方のヒントで導く。
+- 学んだことを記録するよう頼まれたら save_learning_log で保存する。
 """
 
 # モデルは実行時に渡す（テストではAPIを呼ばない TestModel に差し替えるため）
-agent = Agent(instructions=INSTRUCTIONS)
+# 承認付きツールが呼ばれると、実行は止まって DeferredToolRequests が返るので output_type に加える
+agent = Agent(instructions=INSTRUCTIONS, output_type=[str, DeferredToolRequests])
 agent.tool_plain(tools.search_glossary)
 agent.tool_plain(tools.get_lecture_summary)
+# 宿題（実装）: ファイルへの保存は取り消しにくいので、実行の前に利用者の承認を挟む
+agent.tool_plain(tools.save_learning_log, requires_approval=True)
 
 # TODO(第3回 演習): tools.py に make_quiz を作り、ここで登録しよう
 
@@ -97,6 +103,43 @@ def print_tools(target: Agent) -> None:
         print(f"  引数: {json.dumps(params, ensure_ascii=False)}")
 
 
+Approver = Callable[[ToolCallPart], bool]
+
+
+def ask_user(call: ToolCallPart) -> bool:
+    """承認待ちのツール呼び出しを表示し、実行してよいかを端末で利用者に聞く。"""
+    print(f"\n[承認待ち] {call.tool_name} を実行しようとしています。")
+    for key, value in call.args_as_dict().items():
+        print(f"  {key}: {value}")
+    try:
+        answer = input("実行してよいですか？ [y/N] ")
+    except EOFError:  # 入力できない環境では、安全側に倒して拒否する
+        answer = ""
+    return answer.strip().lower() in {"y", "yes"}
+
+
+def run_with_approval(target: Agent, question: str, approve: Approver = ask_user, **kwargs):
+    """エージェントを実行し、承認待ちで止まったら approve で可否を決めて続きを実行する。
+
+    承認されたツールは実行され、拒否されたツールは ToolDenied がモデルに返る。
+    モデルが続けて承認付きツールを呼ぶこともあるので、止まらなくなるまで繰り返す。
+    """
+    result = target.run_sync(question, **kwargs)
+    while isinstance(result.output, DeferredToolRequests):
+        results = DeferredToolResults()
+        for call in result.output.approvals:
+            results.approvals[call.tool_call_id] = (
+                True if approve(call) else ToolDenied("利用者が実行を許可しませんでした。")
+            )
+        result = target.run_sync(
+            message_history=result.all_messages(),
+            deferred_tool_results=results,
+            usage=result.usage,  # 承認前の分も合わせて数える（--trace の [usage] 用）
+            **kwargs,
+        )
+    return result
+
+
 def print_trace(result) -> None:
     """どのツールが、どの引数で呼ばれ、何を返したかを表示する。"""
     print("\n--- trace ---")
@@ -128,7 +171,7 @@ def main() -> None:
     if args.mcp:
         print("[tools] MCP サーバー（app/mcp_servers.json）")
     try:
-        result = target.run_sync(args.question, model=build_model())
+        result = run_with_approval(target, args.question, model=build_model())
     except ModelHTTPError as e:
         print(api_error_message(e.status_code, str(e.body)[:200]))
         raise SystemExit(1)

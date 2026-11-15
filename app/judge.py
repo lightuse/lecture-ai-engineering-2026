@@ -302,13 +302,17 @@ def compare_labels(a: dict[str, dict], b: dict[str, dict], name_a: str, name_b: 
 
 # ---------------------------------------------------------------- 回答の生成（宿題・実装）
 def generate_answers(cases: list[dict], wait: float = 1.0) -> list[dict]:
-    """評価セットの各質問を自分のエージェント（app.agent）に投げ、回答を埋める。"""
-    from app.agent import agent, build_model
+    """評価セットの各質問を自分のエージェント（app.agent）に投げ、回答を埋める。
+
+    承認付きのツール（例: save_learning_log）が呼ばれたら、生成中はファイルを書かないよう
+    すべて拒否して続きを答えさせる（承認待ちのまま止まると回答が文字列にならないため）。
+    """
+    from app.agent import agent, build_model, run_with_approval
 
     model = build_model()
     print(f"回答を生成中 {len(cases)} 件 ", end="", flush=True)
     for case in cases:
-        result = agent.run_sync(case["question"], model=model)
+        result = run_with_approval(agent, case["question"], approve=lambda call: False, model=model)
         case["answer"] = str(result.output)
         print(".", end="", flush=True)
         time.sleep(wait)

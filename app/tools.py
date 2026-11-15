@@ -5,10 +5,13 @@
 """
 
 import json
+import re
+from datetime import datetime
 from functools import cache
 from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+LOG_DIR = Path(__file__).resolve().parent.parent / "learning_log"  # .gitignore 済み
 MAX_RESULTS = 3
 
 
@@ -77,3 +80,32 @@ def get_lecture_summary(lecture: int) -> str:
         available = sorted(p.stem for p in (DATA_DIR / "lectures").glob("*.md"))
         return f"第{lecture}回の要点はまだありません。用意されている回: {', '.join(available)}"
     return path.read_text(encoding="utf-8")
+
+
+def _safe_filename(title: str) -> str:
+    """ファイル名に使えない文字を "_" に置き換え、長すぎる名前を切り詰める。"""
+    name = re.sub(r'[\\/:*?"<>|\s]+', "_", title).strip("._")
+    return name[:50] or "untitled"
+
+
+def save_learning_log(title: str, content: str) -> str:
+    """学習の記録を Markdown ファイルとして learning_log/ フォルダに保存し、保存先を返す。
+
+    利用者が「記録して」「メモを残して」「学習ログに保存して」のように、
+    学んだことを残すよう頼んだときだけ使う。頼まれていないときは使わない。
+    title には記録の短い題名（例: "LoRAとQLoRAの違い"）、
+    content には保存する本文（Markdown）を入れる。
+    実行の前に利用者の確認がある。
+    """
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    path = LOG_DIR / f"{stamp}_{_safe_filename(title)}.md"
+    n = 2
+    while path.exists():  # 同じ秒に同じ題名で保存しても上書きしない
+        path = LOG_DIR / f"{stamp}_{_safe_filename(title)}_{n}.md"
+        n += 1
+    body = content.strip()
+    if not body.startswith("# "):  # モデルが本文に見出しを入れてきたら、二重にしない
+        body = f"# {title}\n\n{body}"
+    path.write_text(body + "\n", encoding="utf-8")
+    return f"保存しました: {path.relative_to(LOG_DIR.parent)}"

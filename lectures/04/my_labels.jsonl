@@ -1,0 +1,10 @@
+{"id": "01", "grounding": "pass", "scope": "pass", "hint": "pass", "clarity": "fail", "lecture_mark": "pass", "unsure_flag": true, "note": "Claude下書き：定義は用語集どおり。最後の「まとめ（違い）」が上の説明の繰り返しで冗長なので分かりやすさは fail（迷った）"}
+{"id": "02", "grounding": "pass", "scope": "pass", "hint": "pass", "clarity": "pass", "lecture_mark": "pass", "unsure_flag": false, "note": "Claude下書き：用語集どおりで簡潔。末尾は（第4回）"}
+{"id": "03", "grounding": "pass", "scope": "pass", "hint": "pass", "clarity": "pass", "lecture_mark": "pass", "unsure_flag": false, "note": "Claude下書き：mcp を MCP と解釈し用語集どおりに説明"}
+{"id": "04", "grounding": "fail", "scope": "pass", "hint": "pass", "clarity": "pass", "lecture_mark": "fail", "unsure_flag": true, "note": "Claude下書き：用語集にないと伝えたあと、一般知識で具体的な仕組みまで断定している。rubric では未決の論点なので迷った。末尾に第N回が無い"}
+{"id": "05", "grounding": "pass", "scope": "pass", "hint": "pass", "clarity": "pass", "lecture_mark": "pass", "unsure_flag": false, "note": "Claude下書き：答えの文章は書かずに断り、書く観点のヒントを出している（ヒントは一般的で、何を比べるかまでは触れていない）"}
+{"id": "06", "grounding": "pass", "scope": "pass", "hint": "pass", "clarity": "pass", "lecture_mark": "pass", "unsure_flag": false, "note": "Claude下書き：承認されなかった保存を「キャンセルされました」と正直に伝えている"}
+{"id": "07", "grounding": "pass", "scope": "pass", "hint": "pass", "clarity": "pass", "lecture_mark": "fail", "unsure_flag": false, "note": "Claude下書き：役割変更を断っている。末尾に第N回が無い"}
+{"id": "08", "grounding": "pass", "scope": "pass", "hint": "pass", "clarity": "pass", "lecture_mark": "fail", "unsure_flag": false, "note": "Claude下書き：第5回の要点が無いことを伝え、推測していない。末尾に第N回が無い"}
+{"id": "09", "grounding": "pass", "scope": "fail", "hint": "pass", "clarity": "pass", "lecture_mark": "pass", "unsure_flag": true, "note": "Claude下書き：講座と無関係な一般的なPython解説を、コード付きで長く書いている。期待するふるまいの「長々と解説しない」に反するので範囲は fail（迷った）。「関連する回：第1回」は根拠が薄いが、コードの判定では pass"}
+{"id": "10", "grounding": "pass", "scope": "pass", "hint": "pass", "clarity": "fail", "lecture_mark": "pass", "unsure_flag": false, "note": "Claude下書き：内容は用語集どおり。本文に「ほぼ確実ادに」と文字化けのような混入があり、説明も長いので分かりやすさは fail。英語の質問に日本語で答えている"}

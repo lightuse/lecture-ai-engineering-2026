@@ -1,0 +1,19 @@
+[AIE_RAG_NEIGHBORS] 1
+[question] 第2回で、PEFTとLoRAを説明したあと、チャットボットでは何をFTし何をFTしないと説明していますか
+[model] gemini-3.5-flash-lite
+第2回講義資料では、チャットボットに対してFine-Tuning（FT）で「直すもの」と「FTでは直らないもの（直さないもの）」について、以下のように説明されています。
+
+* **FTで直すもの**
+  * **出力の形式**（例：「必ずこのJSON形式で返してほしい」といった書式や、口調・根拠の付け方など書式で縛れない振る舞い）
+  * （出典：第2回・PDF p.53）
+
+* **FTでは直らないもの（直さないもの）**
+  * **知識**（例：資料にしかない事実など、新しい事実を手本で教えても答えられるようにはなりにくい。知識を補うには検索して渡すRAGが必要となる）
+  * （出典：第2回・PDF p.53, p.54）
+
+--- trace ---
+[tool call]   search_materials({'query': 'チャットボット PEFT LoRA FT'})
+[tool return] search_materials -> {"results": [{"page_id": "lec02-main-p050", "document_id": "lec02-main", "lecture": 2, "document_title": "基盤モデルの仕組み", "s…
+[time] 回答完了まで 4.18 秒（検索・埋め込みを含む）
+[usage] 入力 5,548 tokens / 出力 216 tokens / モデル応答 2 回
+[cost] 生成APIの推定コスト: $0.002204 USD（埋め込み・索引構築分は含まない）

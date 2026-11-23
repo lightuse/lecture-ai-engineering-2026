@@ -16,8 +16,8 @@ import sqlite_vec
 
 from app.config import (
     EMBEDDING_DIMENSIONS, EMBEDDING_MAX_TOKENS, EMBEDDING_MODEL,
-    RAG_DB, RAG_DOCUMENT_IDS, RAG_SOURCE, RAG_TOP_K, RAG_TREE, get_api_key,
-    RAG_GRAPH, GRAPH_START_K, GRAPH_HOPS, GRAPH_MAX_RESULTS,
+    RAG_DB, RAG_DOCUMENT_IDS, RAG_NEIGHBOR_PAGES, RAG_SOURCE, RAG_TOP_K, RAG_TREE, get_api_key,
+    RAG_GRAPH, GRAPH_START_K, GRAPH_HOPS, GRAPH_MAX_RESULTS, TERM_MAP_MAX_RESULTS,
 )
 
 
@@ -138,6 +138,147 @@ def search(query: str) -> list[dict]:
         return [dict(row) for row in rows]
 
 
+def add_neighbor_pages(hits: list[dict], pages: list[dict], width: int = 1) -> list[dict]:
+    """検索結果の各ページに、同じ資料の前後widthページを付けて返す。
+
+    - 前後は同じdocument_idの中だけで探す（資料の先頭・末尾から別の資料へはまたがない）。
+    - 同じページは1回だけ返す。検索で見つかったページは、他のページの前後としては重ねない。
+    - 検索の順位ごとに「前のページ → 見つかったページ → 次のページ」の順に並べる。
+    - roleは"hit"（検索で見つかった）か"neighbor"（前後として追加した）。
+      neighborにはdistanceがなく、どのページの前後かをneighbor_ofに入れる。
+    """
+    hits = [{**hit, "role": "hit"} for hit in hits]
+    if width <= 0:
+        return hits
+    by_document = defaultdict(list)
+    for page in pages:
+        by_document[page["document_id"]].append(page)
+    position = {}
+    for document_pages in by_document.values():
+        document_pages.sort(key=lambda page: page["page"])
+        for index, page in enumerate(document_pages):
+            position[page["page_id"]] = index
+
+    seen = {hit["page_id"] for hit in hits}
+    results = []
+    for hit in hits:
+        before, after = [], []
+        if hit["page_id"] in position:
+            document_pages = by_document[hit["document_id"]]
+            index = position[hit["page_id"]]
+            for neighbor in document_pages[max(0, index - width):index + width + 1]:
+                if neighbor["page_id"] in seen:
+                    continue
+                seen.add(neighbor["page_id"])
+                item = {**neighbor, "role": "neighbor", "neighbor_of": hit["page_id"]}
+                (before if neighbor["page"] < hit["page"] else after).append(item)
+        results.extend(before + [hit] + after)
+    return results
+
+
+def search_with_neighbors(query: str) -> list[dict]:
+    """通常の検索を行い、RAG_NEIGHBOR_PAGESが1以上なら前後のページも付ける。0なら通常の検索と同じ。"""
+    hits = search(query)
+    if RAG_NEIGHBOR_PAGES <= 0:
+        return hits
+    return add_neighbor_pages(hits, load_pages(RAG_SOURCE), RAG_NEIGHBOR_PAGES)
+
+
+def match_terms(query: str, terms: list[dict]) -> list[dict]:
+    """質問文に名前か別名が出てくる用語ノードを返す（埋め込みは使わない文字列一致）。
+
+    - 英数字の別名は単語の境界で一致させる（"Pi"が"pip"に当たらないようにする）。
+    - 「外部ツール」と「ツール」のように重なる場合は、長く一致した用語だけを残す。
+    """
+    text = query.casefold()
+    found = []
+    for term in terms:
+        for alias in {term["title"], *term.get("aliases", [])}:
+            name = alias.casefold()
+            pattern = re.escape(name)
+            if re.fullmatch(r"[a-z0-9 ._\-]+", name):
+                pattern = rf"(?<![a-z0-9]){pattern}(?![a-z0-9])"
+            for match in re.finditer(pattern, text):
+                found.append((match.start(), match.end(), term["id"], alias))
+    kept = {}
+    for start, end, term_id, alias in found:
+        covered = any(s <= start and end <= e and (e - s) > (end - start) for s, e, *_ in found)
+        if not covered and (term_id not in kept or len(alias) > len(kept[term_id])):
+            kept[term_id] = alias
+    by_id = {term["id"]: term for term in terms}
+    return [{"id": term_id, "title": by_id[term_id]["title"], "matched": alias}
+            for term_id, alias in sorted(kept.items())]
+
+
+def spread_by_section(candidates: list[dict], limit: int) -> list[dict]:
+    """候補ページを「回・章」ごとに分け、各章の距離が近い順に1ページずつ交互に選ぶ。
+
+    距離の近い順だけで選ぶと1つの章に偏るので、用語が出てくる章を先に広く拾う。
+    """
+    groups = defaultdict(list)
+    for page in sorted(candidates, key=lambda page: (page["distance"], page["page_id"])):
+        groups[(page["lecture"], page["section"])].append(page)
+    queues = sorted(groups.values(), key=lambda pages: (pages[0]["distance"], pages[0]["page_id"]))
+    selected = []
+    while len(selected) < limit and any(queues):
+        for pages in queues:
+            if pages and len(selected) < limit:
+                selected.append(pages.pop(0))
+    return selected
+
+
+def page_distances(query: str) -> dict[str, float]:
+    """質問を1回だけ埋め込み、検索DBの全ページとの距離を返す。"""
+    with open_index(RAG_DB) as db:
+        vector = embed_text(query.strip(), "RETRIEVAL_QUERY")
+        rows = db.execute("SELECT page_id, vec_distance_cosine(embedding, ?) AS distance FROM chunks",
+                          (sqlite_vec.serialize_float32(vector),))
+        return {row["page_id"]: row["distance"] for row in rows}
+
+
+def search_term_map(query: str) -> dict:
+    """用語ノードを入口に、その用語に触れているページを回・章にまたがって返す。
+
+    1. 質問文と用語の名前・別名を照合し、Graphの用語ノードを入口にする。
+    2. mentionsの関係を1 hopたどり、用語に触れているページをすべて候補にする。
+    3. coverageに、候補ページを回・章ごとにまとめた一覧（本文なし）を入れる。
+    4. resultsには、章ごとに交互に選んだ最大TERM_MAP_MAX_RESULTSページの本文を入れる。
+    用語が見つからない質問では、通常の検索結果を返す。
+    """
+    if not isinstance(query, str) or not query.strip():
+        raise ValueError("検索語が空です。")
+    pages = {page["page_id"]: page for page in load_pages(RAG_SOURCE)}
+    graph = json.loads(RAG_GRAPH.read_text(encoding="utf-8"))
+    terms = match_terms(query, [node for node in graph["nodes"] if node["kind"] == "term"])
+    term_ids = {term["id"] for term in terms}
+    mentioned = defaultdict(set)
+    for edge in graph["edges"]:
+        if edge["relation"] != "mentions":
+            continue
+        for page_id, term_id in ((edge["source"], edge["target"]), (edge["target"], edge["source"])):
+            if page_id in pages and term_id in term_ids:
+                mentioned[page_id].add(term_id)
+    if not mentioned:
+        return {"terms": [], "coverage": [], "results": search(query),
+                "note": "質問に用語集の用語が見つからないため、通常の検索結果を返した。"}
+
+    distances = page_distances(query)
+    titles = {term["id"]: term["title"] for term in terms}
+    candidates = [{**pages[page_id], "distance": distances[page_id],
+                   "terms": sorted(titles[t] for t in term_ids_of_page)}
+                  for page_id, term_ids_of_page in mentioned.items() if page_id in distances]
+    results = spread_by_section(candidates, TERM_MAP_MAX_RESULTS)
+    returned = {page["page_id"] for page in results}
+    sections = defaultdict(list)
+    for page in sorted(candidates, key=lambda page: (page["lecture"], page["page"])):
+        sections[(page["lecture"], page["section"])].append(page)
+    coverage = [{"lecture": lecture, "section": section,
+                 "pages": [{"page_id": page["page_id"], "page": page["page"], "title": page["title"],
+                            "returned": page["page_id"] in returned} for page in members]}
+                for (lecture, section), members in sections.items()]
+    return {"terms": terms, "coverage": coverage, "results": results}
+
+
 def search_graph(query: str) -> dict:
     """ベクトル検索を入口に、前後ページと共通用語で候補を広げる。"""
     pages = {page["page_id"]: page for page in load_pages(RAG_SOURCE)}
@@ -202,8 +343,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="エージェントを使わず、講義資料の検索だけを実行する")
     parser.add_argument("query", help="調べたい内容")
     args = parser.parse_args()
-    for i, result in enumerate(search(args.query), 1):
+    for i, result in enumerate(search_with_neighbors(args.query), 1):
         print(f"\n{'=' * 60}\n検索結果 {i}\n{'=' * 60}")
+        if result.get("role") == "neighbor":
+            print(f"（{result['neighbor_of']} の前後として追加）")
         print(f"講義: {result['document_title']}")
         print(f"章: {result['section']}")
         print(f"タイトル: {result['title']}")

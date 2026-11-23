@@ -1,0 +1,22 @@
+[mode] termmap
+[question] 第2回の説明では、LoRAは何を固定し何を学習しますか？ QLoRAは何を加えますか？
+[model] gemini-3.5-flash-lite
+ご質問ありがとうございます。
+
+第2回の講義資料において、LoRAとQLoRAの仕組みについて以下の通り説明されています。
+
+* **第2回・PDF p.51, 52**
+  * **LoRA（Low-Rank Adaptation）**: 
+    * **固定するもの**: 元のモデルの重み（本体）は固定して学習しません。
+    * **学習するもの**: 重みの変化分を表す、細長い2つの小さな行列（低ランク行列 $\text{A}$ と $\text{B}$）などの追加部分だけを学習します。
+  * **QLoRA**: 
+    * **加えるもの**: LoRAの仕組みに加え、**元の重みを4bitに圧縮**（数値を粗く保存）して省メモリ化を図る点を加えています。
+
+これらにより、大きなモデルであってもGPU1台で効率的に微調整（Fine-Tuning）できるようになっています。
+
+--- trace ---
+[tool call]   search_term_map({'query': 'LoRA QLoRA'})
+[tool return] search_term_map -> {"terms": [{"id": "term:lora", "title": "LoRA", "matched": "LoRA"}, {"id": "term:qlora", "title": "QLoRA", "matched": "Q…
+[time] 回答完了まで 3.50 秒（検索・埋め込みを含む）
+[usage] 入力 5,474 tokens / 出力 221 tokens / モデル応答 2 回
+[cost] 生成APIの推定コスト: $0.002195 USD（埋め込み・索引構築分は含まない）

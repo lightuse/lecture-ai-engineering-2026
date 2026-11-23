@@ -1,0 +1,41 @@
+[RAG_TOP_K] 5
+[question] 第3回の例では、コンパクションとセッションをまたぐメモリはどう違いますか。日々のメモはすべて長期メモリに入りますか
+                 pydantic-ai v2.57.0 • Python 3.15.2
+      / \
+     /   \       agent: target • model: google:gemini-3.5-flash-lite • tools: 1 • capabilities: 0
+   /___.___\
+  /    |    \    observability: off — see every model and tool call live, with cost
+/      |      \    set it up free with Logfire and a GitHub login: https://pydantic.dev/ai-setup.md
+`---.._|_..---'    or use any OpenTelemetry backend: https://pydantic.dev/docs/ai/logfire/#otel
+
+                 goes away once observability is on — or PYDANTIC_AI_NO_BANNER=1
+[model] gemini-3.5-flash-lite
+ご質問ありがとうございます。第3回の講義資料をもとに、コンパクションとセッションをまたぐメモリの違い、および日々のメモの扱いについて解説します。
+
+### 1. コンパクションとセッションをまたぐメモリの違い
+
+第3回のClaudeの実装例などにおいて、両者は**「どこで効くか（有効範囲）」**と**「データの扱われ方」**が異なります（第3回・PDF p.39、p.65）。
+
+* **コンパクション（コンテキストの中 / 同じセッション）**
+  * **有効範囲:** 1つのセッション（コンテキストの中）です。
+  * **仕組み:** コンテキストの長さに上限があるため、古い履歴を要約して詰めることで、限られた容量の中に情報を収めます（第3回・PDF p.38、p.39）。
+* **セッションをまたぐメモリ（外の保存先）**
+  * **有効範囲:** セッションやチャットが変わっても、セッションをまたいで引き継がれます（第3回・PDF p.39）。
+  * **仕組み:** メモリツールや自動メモリ機能などを使って外の保存先（ファイルなど）に書き出し、次回の会話の最初などに読み込みます（第3回・PDF p.39、p.40）。
+
+---
+
+### 2. 日々のメモはすべて長期メモリに入りますか？
+
+OpenClawの実装例では、日々のメモ（`memory/日付.md`など）がすべてそのまま長期メモリ（`MEMORY.md`）に入るわけではありません（第3回・PDF p.40）。
+
+* **仕組み:** 毎晩自動で見直し（dreaming）が行われ、「集める」「見比べる」「移す」というステップを踏みます（第3回・PDF p.40）。
+* **基準:** 重複を除いたり、何度も出てくるテーマを探したりして、**基準を超えたものだけ**が長期メモリに残されます（第3回・PDF p.40）。
+* 一度きりの調べものなどは日々のメモに残るだけであり、長期メモリが膨らまないように設計されています（第3回・PDF p.40）。
+
+--- trace ---
+[tool call]   search_materials({'query': 'コンパクション セッション メモリ 長期メモリ 日々のメモ'})
+[tool return] search_materials -> {"results": [{"page_id": "lec03-main-p039", "document_id": "lec03-main", "lecture": 3, "document_title": "AIエージェント", "se…
+[time] 回答完了まで 4.29 秒（検索・埋め込みを含む）
+[usage] 入力 2,500 tokens / 出力 505 tokens / モデル応答 2 回
+[cost] 生成APIの推定コスト: $0.002012 USD（埋め込み・索引構築分は含まない）

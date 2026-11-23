@@ -1,0 +1,19 @@
+[AIE_RAG_NEIGHBORS] 0
+[question] 第2回で、PEFTとLoRAを説明したあと、チャットボットでは何をFTし何をFTしないと説明していますか
+[model] gemini-3.5-flash-lite
+第2回の講義資料では、チャットボットにおけるファインチューニング（FT）について、以下の通り「FTで直るもの」と「FTでは直らないもの」が説明されています。
+
+- **FTで直るもの：**
+  - **出力の形式**（例：必ずJSON形式で返すなど、口調や根拠の付け方といった書式で縛れない振る舞い）
+  
+- **FTでは直らないもの：**
+  - **知識**（例：資料にしかない事実など。これらはFTしても答えられるようにはなりにくいため、検索して渡すRAGなどが必要になる）
+
+（第2回・PDF p.53）
+
+--- trace ---
+[tool call]   search_materials({'query': 'チャットボット PEFT LoRA FT'})
+[tool return] search_materials -> {"results": [{"page_id": "lec02-main-p051", "document_id": "lec02-main", "lecture": 2, "document_title": "基盤モデルの仕組み", "s…
+[time] 回答完了まで 3.21 秒（検索・埋め込みを含む）
+[usage] 入力 3,019 tokens / 出力 175 tokens / モデル応答 2 回
+[cost] 生成APIの推定コスト: $0.001343 USD（埋め込み・索引構築分は含まない）

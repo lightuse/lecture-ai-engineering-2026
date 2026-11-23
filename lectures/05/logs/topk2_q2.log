@@ -1,0 +1,43 @@
+[RAG_TOP_K] 2
+[question] 第3回の例では、コンパクションとセッションをまたぐメモリはどう違いますか。日々のメモはすべて長期メモリに入りますか
+                 pydantic-ai v2.57.0 • Python 3.15.2
+      / \
+     /   \       agent: target • model: google:gemini-3.5-flash-lite • tools: 1 • capabilities: 0
+   /___.___\
+  /    |    \    observability: off — see every model and tool call live, with cost
+/      |      \    set it up free with Logfire and a GitHub login: https://pydantic.dev/ai-setup.md
+`---.._|_..---'    or use any OpenTelemetry backend: https://pydantic.dev/docs/ai/logfire/#otel
+
+                 goes away once observability is on — or PYDANTIC_AI_NO_BANNER=1
+[model] gemini-3.5-flash-lite
+第3回の講義資料に基づき、コンパクションとセッションをまたぐメモリの違い、および日々のメモの扱いについて回答します。
+
+### 1. コンパクションとセッションをまたぐメモリの違い
+Claudeの実装例において、両者は**「どこで（どの範囲で）効くか」**と**「どのように処理するか」**が異なります（第3回・PDF p.39）。
+
+* **コンパクション（コンテキストの中 / 同じセッション）**
+  * **範囲:** 1つのセッション（コンテキストの中）で効きます（第3回・PDF p.39）。
+  * **処理:** 古い履歴を要約して詰めることで、コンテキストの容量を管理します（第3回・PDF p.39）。
+* **セッションをまたぐメモリ（外の保存先）**
+  * **範囲:** セッションをまたいで（次回の会話などに持ち越して）効きます（第3回・PDF p.39）。
+  * **処理:** メモリツールや自動メモリ機能などにより、ファイル（例：`/memories` のファイルや長期メモリ）に書き出され、必要に応じて読み戻されます（第3回・PDF p.39）。
+
+---
+
+### 2. 日々のメモはすべて長期メモリに入りますか？
+OpenClawの実装例を参考にすると、**日々のメモがすべて長期メモリに入るわけではありません。**
+
+* **日々のメモと長期メモリの分離:**
+  * 各日のやり取りは「日々のメモ（`memory/日付.md`）」として残りますが、毎晩の自動見直し（dreaming）のプロセスを経ます（第3回・PDF p.40）。
+* **残される基準:**
+  * 集める・見比べる（何度も出てくるテーマを探す）といったステップを経て、**基準を超えたものだけ**が `MEMORY.md`（長期メモリ）に移されます（第3回・PDF p.40）。
+  * 一度きりの調べものなどは日々のメモに残るだけであり、長期メモリが膨らまないように設計されています（第3回・PDF p.40）。また、資料では「すべてを蓄積すると、古い情報や誤りも一緒に戻ってくる。何を残し、何を消すかを設計する」と説明されています（第3回・PDF p.38）。
+
+--- trace ---
+[tool call]   search_materials({'query': 'コンパクション セッション メモリ 長期メモリ'})
+[tool return] search_materials -> {"results": [{"page_id": "lec03-main-p065", "document_id": "lec03-main", "lecture": 3, "document_title": "AIエージェント", "se…
+[tool call]   search_materials({'query': '日々のメモ 長期メモリ すべて'})
+[tool return] search_materials -> {"results": [{"page_id": "lec03-main-p040", "document_id": "lec03-main", "lecture": 3, "document_title": "AIエージェント", "se…
+[time] 回答完了まで 6.78 秒（検索・埋め込みを含む）
+[usage] 入力 3,423 tokens / 出力 568 tokens / モデル応答 3 回
+[cost] 生成APIの推定コスト: $0.002447 USD（埋め込み・索引構築分は含まない）

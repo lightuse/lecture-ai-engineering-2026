@@ -19,9 +19,14 @@ RAG_GRAPH = ROOT / "data/rag_data/graph.json"
 RAG_DB = Path(os.getenv("AIE_RAG_DB", str(ROOT / "data/rag_data/index.sqlite3")))
 RAG_DOCUMENT_IDS = ("lec01-main", "lec02-main", "lec03-main")
 RAG_TOP_K = 5
+# 第5回 宿題(実装): 検索結果の各ページに、同じ資料の前後何ページを付けるか。0なら通常の検索のまま。
+#   例: export AIE_RAG_NEIGHBORS=1
+RAG_NEIGHBOR_PAGES = int(os.getenv("AIE_RAG_NEIGHBORS", "0"))
 GRAPH_START_K = 3
 GRAPH_HOPS = 2
 GRAPH_MAX_RESULTS = 10
+# 第5回 宿題(発展): 用語ノードを入口にした取得（--term-map）で、本文を返す最大ページ数。
+TERM_MAP_MAX_RESULTS = 8
 EMBEDDING_MODEL = "gemini-embedding-001"
 EMBEDDING_DIMENSIONS = 768
 # 2,048トークンの上限に対し、タスク指定等の分を残す。超過時は切り捨てず停止する。

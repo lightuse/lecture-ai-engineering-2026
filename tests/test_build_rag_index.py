@@ -54,3 +54,55 @@ def test_existing_index_survives_failed_rebuild(materials):
         build_index(source, database, rebuild=True, embedder=embed)
     assert database.read_bytes() == before
     assert not list(database.parent.glob(".rag-build-*"))
+
+
+def _page(document_id, number):
+    return {"page_id": f"{document_id}-p{number:03d}", "document_id": document_id,
+            "page": number, "title": f"p{number}", "content": f"本文{number}"}
+
+
+def test_add_neighbor_pages_keeps_document_boundary_and_no_duplicates():
+    """前後ページは同じ資料の中だけで付け、同じページを重複して返さない。"""
+    pages = [_page("lec01-main", n) for n in (1, 2, 3)] + [_page("lec02-main", n) for n in (1, 2, 3, 4)]
+    # lec02のp.1（資料の先頭）、p.2（p.1の隣で、それ自体も検索結果）、p.4 が見つかった場合
+    hits = [{**_page("lec02-main", n), "distance": d} for n, d in ((1, 0.1), (2, 0.2), (4, 0.3))]
+
+    results = retrieval.add_neighbor_pages(hits, pages, width=1)
+
+    ids = [r["page_id"] for r in results]
+    assert ids == ["lec02-main-p001", "lec02-main-p002", "lec02-main-p003", "lec02-main-p004"]
+    assert len(ids) == len(set(ids))
+    assert all(r["document_id"] == "lec02-main" for r in results)  # lec01の末尾へまたがない
+    assert [r["role"] for r in results] == ["hit", "hit", "neighbor", "hit"]
+    neighbor = results[2]
+    assert neighbor["neighbor_of"] == "lec02-main-p002" and "distance" not in neighbor
+    assert neighbor["content"] == "本文3"
+
+
+def test_search_with_neighbors_is_plain_search_by_default(monkeypatch):
+    """RAG_NEIGHBOR_PAGESが0なら、通常の検索結果をそのまま返す。"""
+    hits = [{**_page("lec02-main", 2), "distance": 0.1}]
+    monkeypatch.setattr(retrieval, "search", lambda query: hits)
+    monkeypatch.setattr(retrieval, "RAG_NEIGHBOR_PAGES", 0)
+    assert retrieval.search_with_neighbors("質問") == hits
+
+
+def test_match_terms_uses_word_boundary_and_longest_match():
+    """英数字の別名は単語境界で一致させ、重なる用語は長く一致した方だけを残す。"""
+    terms = [{"id": "t-pi", "title": "Pi", "aliases": ["Pi"]},
+             {"id": "t-tool", "title": "ツール", "aliases": ["ツール"]},
+             {"id": "t-ext", "title": "外部ツール", "aliases": ["外部ツール"]},
+             {"id": "t-mcp", "title": "MCP（Model Context Protocol）", "aliases": ["MCP"]}]
+    found = retrieval.match_terms("pipで入れたmcpと外部ツールの関係は？", terms)
+    assert [(t["id"], t["matched"]) for t in found] == [("t-ext", "外部ツール"), ("t-mcp", "MCP")]
+
+
+def test_spread_by_section_takes_each_section_before_second_page():
+    """距離が近い章に偏らせず、各章から1ページずつ先に選ぶ。"""
+    def candidate(lecture, section, number, distance):
+        return {"page_id": f"lec{lecture:02d}-main-p{number:03d}", "lecture": lecture,
+                "section": section, "distance": distance}
+    candidates = [candidate(3, "A", 1, 0.1), candidate(3, "A", 2, 0.2), candidate(3, "A", 3, 0.3),
+                  candidate(1, "B", 1, 0.5), candidate(2, "C", 1, 0.6)]
+    picked = retrieval.spread_by_section(candidates, limit=4)
+    assert [(p["lecture"], p["distance"]) for p in picked] == [(3, 0.1), (1, 0.5), (2, 0.6), (3, 0.2)]

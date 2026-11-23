@@ -88,10 +88,10 @@ def search_materials(query: str) -> str:
     """
     from google.genai.errors import APIError
     import sqlite3
-    from app.retrieval import search
+    from app.retrieval import search_with_neighbors
 
     try:
-        return json.dumps({"results": search(query)}, ensure_ascii=False)
+        return json.dumps({"results": search_with_neighbors(query)}, ensure_ascii=False)
     except (ValueError, FileNotFoundError, sqlite3.Error) as e:
         return json.dumps({"error": str(e), "results": []}, ensure_ascii=False)
     except APIError as e:
@@ -119,6 +119,25 @@ def search_graph(query: str) -> str:
     import sqlite3
     from google.genai.errors import APIError
     from app.retrieval import search_graph as search
+
+    try:
+        return json.dumps(search(query), ensure_ascii=False)
+    except (ValueError, OSError, sqlite3.Error) as e:
+        return json.dumps({"error": str(e)}, ensure_ascii=False)
+    except APIError as e:
+        return json.dumps({"error": api_error_message(e.code)}, ensure_ascii=False)
+
+
+def search_term_map(query: str) -> str:
+    """用語を入口に、その用語に触れているページを回・章にまたがって探す。
+
+    queryには質問に出てくる用語をそのまま含める（例: "MCP 権限"）。
+    coverageは用語に触れている全ページの一覧（回・章ごと、本文なし）、
+    resultsは各章から選んだページの本文と引用情報。
+    """
+    import sqlite3
+    from google.genai.errors import APIError
+    from app.retrieval import search_term_map as search
 
     try:
         return json.dumps(search(query), ensure_ascii=False)

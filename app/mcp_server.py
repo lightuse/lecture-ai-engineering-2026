@@ -13,6 +13,7 @@
 """
 
 import argparse
+import json
 
 from mcp.server.mcpserver import MCPServer
 
@@ -28,6 +29,47 @@ server = MCPServer(
 server.tool()(tools.search_glossary)
 
 # TODO(宿題・基礎): get_lecture_summary も公開しよう
+server.tool()(tools.get_lecture_summary)
+
+MAX_QUIZ_QUESTIONS = 5
+
+
+# 宿題・実装: 用語集からクイズの材料を作るツール。関数に @server.tool() を付けると MCP のツールになる
+@server.tool()
+def make_quiz(lecture: int, num_questions: int = 3) -> str:
+    """指定した回（1始まりの整数）の用語集から、クイズの問題と模範解答を作って返す。
+
+    「第2回のクイズを作って」のように、回を指定してクイズや確認問題を頼まれたときに使う。
+    num_questions は問題数（1〜5、省略すると3）。
+    """
+    by_lecture: dict[int, list[dict]] = {}
+    for entry in tools.load_glossary():
+        by_lecture.setdefault(entry["lecture"], []).append(entry)
+
+    # 範囲外の引数は例外にせず、モデルが次にどうすればよいか分かるメッセージを return で返す
+    if lecture not in by_lecture:
+        available = ", ".join(str(n) for n in sorted(by_lecture))
+        return (
+            f"第{lecture}回のクイズは作れません。用語集に第{lecture}回の用語がないためです。"
+            f"クイズを作れる回: {available}。lecture にはこのどれかを指定してください。"
+        )
+    if not 1 <= num_questions <= MAX_QUIZ_QUESTIONS:
+        return (
+            f"問題数 {num_questions} は範囲外です。"
+            f"num_questions には 1 から {MAX_QUIZ_QUESTIONS} までの整数を指定してください。"
+        )
+
+    entries = by_lecture[lecture][:num_questions]
+    return json.dumps(
+        {
+            "lecture": lecture,
+            "questions": [
+                {"question": f"「{e['term']}」とは何か、説明してください。", "answer": e["definition"]}
+                for e in entries
+            ],
+        },
+        ensure_ascii=False,
+    )
 
 
 def main() -> None:

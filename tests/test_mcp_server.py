@@ -89,3 +89,23 @@ def test_config_mistakes_are_reported_in_words(tmp_path, text, expected):
     path.write_text(text, encoding="utf-8")
     with pytest.raises(ConfigError, match=expected):
         read_config(path)
+
+
+def test_make_quiz_returns_questions_for_existing_lecture():
+    from app.mcp_server import make_quiz
+
+    quiz = json.loads(make_quiz(2, 2))
+    assert quiz["lecture"] == 2
+    assert len(quiz["questions"]) == 2
+    assert all(q["question"] and q["answer"] for q in quiz["questions"])
+
+
+def test_make_quiz_explains_out_of_range_arguments():
+    from app.mcp_server import make_quiz
+
+    # 範囲外のときは例外ではなく、使える値を含むメッセージが返る
+    message = make_quiz(99)
+    assert "第99回のクイズは作れません" in message
+    assert "クイズを作れる回: 1, 2, 3, 4, 6" in message
+    assert "1 から 5 まで" in make_quiz(2, 0)
+    assert "1 から 5 まで" in make_quiz(2, 6)
